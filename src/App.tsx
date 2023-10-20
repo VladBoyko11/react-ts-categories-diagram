@@ -9,31 +9,26 @@ const App: React.FC = () => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [isCentered, setIsCentered] = useState(false)
-  const [isAddCategory, setIsAddCategory] = useState<boolean>(false)
   const ref = React.createRef<HTMLDivElement>()
 
-  const handleMouseDown = (e: any) => {
+  const handleMouseDown = (e: React.MouseEvent) => {
     setIsDragging(true);
     drag = true
     setIsCentered(false)
     setOffset({
       x: ref.current!.offsetLeft - e.clientX,
       y: ref.current!.offsetTop - e.clientY,
-      // x: e.clientX,
-      // y: e.clientY,
     });
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
   };
 
-  const handleMouseMove = (e: any) => {
+  const handleMouseMove = (e) => {
     e.preventDefault()
     if (drag) {
       setPosition({
         x: e.clientX + offset.x,
         y: e.clientY + offset.y,
-        // x: e.clientX,
-        // y: e.clientY - 150
       });
     }
   };
@@ -41,7 +36,6 @@ const App: React.FC = () => {
   const handleMouseUp = () => {
     setIsDragging(false);
     document.removeEventListener('mousemove', handleMouseMove);
-    // document.removeEventListener('mouseup', handleMouseUp);
   };
 
   const [categories, setCategories] = useState<Category[]>([])
@@ -158,14 +152,6 @@ const App: React.FC = () => {
       }
       return category;
     })
-
-    // for (let category of categoryList) {
-    //   if (category.id === id) {
-    //     return category.id !== id
-    //   } else if (category.children && category.children.length > 0) {
-    //     deleteCategoryChildren(category.children, id);
-    //   }
-    // }
   }
 
   const handleChangeCategory = (id: number, categoryText: string) => {
@@ -194,7 +180,6 @@ const App: React.FC = () => {
 
   const updateCategoryChildren = (categoryList: Category[], id: number, categoryText: string) => {
     for (let category of categoryList) {
-      // newCategory.level = newCategory.level + 1
       if (category.id === id) {
         category.text = categoryText
         return category
@@ -206,7 +191,6 @@ const App: React.FC = () => {
 
   const updateCategory = (categoryList: Category[], parentId: number, newCategory: Category) => {
     for (let category of categoryList) {
-      // newCategory.level = newCategory.level + 1
       if (category.id === parentId) {
         category.children.push(newCategory)
         return
@@ -224,8 +208,6 @@ const App: React.FC = () => {
       ...children.map((childNode) => flatten(childNode)).flat(),
     ] as EnrichedCategory[]
   }
-
-  // const [scale, setScale] = useState<number>(1)
   const options = [0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.25, 1.5];
   const [scale, setScale] = useState(options[5]);
   const handleNext = () => {
@@ -263,7 +245,6 @@ const App: React.FC = () => {
     <header>
       <div className='header-name'>Services</div>
       <button className='btn-center' onClick={() => {
-        // setPosition()
         setIsCentered(true)
         setPosition({ x: 0, y: 0 })
       }}><i className="fa-solid fa-align-center"></i></button>

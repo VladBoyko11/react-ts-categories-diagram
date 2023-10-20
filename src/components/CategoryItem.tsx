@@ -17,9 +17,6 @@ const CategoryItem: FC<ICategoryItem> = ({ node, handleAddCategory, scale, handl
 
   const handleShowInput = () => {
     setInputVisible(true);
-    // setTimeout(() => {
-    //   inputRef.current!.focus();
-    // }, 0);
   };
 
   const handleInputChange = (e) => {
@@ -35,7 +32,6 @@ const CategoryItem: FC<ICategoryItem> = ({ node, handleAddCategory, scale, handl
   const handleInputKeyDown = (e) => {
     if (e.key === 'Enter') {
       setInputVisible(false);
-      // handleAddCategory(node.id, inputText)
       handleChangeCategory(node.id, inputText)
     }
   };
