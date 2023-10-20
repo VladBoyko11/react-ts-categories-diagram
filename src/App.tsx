@@ -13,7 +13,6 @@ const App: React.FC = () => {
   const ref = React.createRef<HTMLDivElement>()
 
   const handleMouseDown = (e: any) => {
-    // e.preventDefault()
     setIsDragging(true);
     drag = true
     setIsCentered(false)
@@ -28,6 +27,7 @@ const App: React.FC = () => {
   };
 
   const handleMouseMove = (e: any) => {
+    e.preventDefault()
     if (drag) {
       setPosition({
         x: e.clientX + offset.x,
