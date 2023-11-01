@@ -150,3 +150,31 @@ button {
   height: 120px;
   top: 300px;
 }
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.5);
+  }
+  100% {
+    transform: scale(1.1);
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.5);
+  }
+}
+
+button:hover, .btn-move:hover, select:hover {
+  animation: pulse 0.5s;
+}
+
+button:hover {
+  transform: scale(1.1);
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.5);
+}
+select:hover {
+  transform: scale(1.1);
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.5);
+}
+.btn-move:hover {
+  transform: scale(1.1);
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.5);
+}

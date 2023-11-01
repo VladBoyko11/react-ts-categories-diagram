@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Category, EnrichedCategory } from './types/types';
+import { Category } from './types/types';
 import CategoryList from './components/CategoryList';
 
 const App: React.FC = () => {
@@ -38,105 +38,39 @@ const App: React.FC = () => {
     document.removeEventListener('mousemove', handleMouseMove);
   };
 
-  const [categories, setCategories] = useState<Category[]>([])
-  const [enrichedTopLevelNode, setEnrichedTopLevelNode] = useState<EnrichedCategory>({
+  const [topLevelNode, setTopLevelNode] = useState<Category>({
     id: 1,
     text: 'Parent',
-    children: categories,
-    depth: 0,
-    descendentsCount: 0,
-    heightDiffWithLastDirectChild: 0
+    children: []
   })
-  console.log(enrichedTopLevelNode)
-  useEffect(() => {
-    setEnrichedTopLevelNode(enrich({
-      id: 1,
-      text: enrichedTopLevelNode.text,
-      children: categories
-    }))
-  }, [categories])
 
-  const enrich = (node: Category, depthOffset = 0): EnrichedCategory => {
-    if (node.children.length === 0) {
-      return {
-        ...node,
-        depth: depthOffset,
-        descendentsCount: 0,
-        heightDiffWithLastDirectChild: 0,
-      }
-    }
-
-    const enrichedChildren = node.children.map((child) => enrich(child, depthOffset + 1))
-    const descendentsCount = node.children.length + enrichedChildren.reduce(
-      (acc, enrichedChild) => acc + enrichedChild.descendentsCount,
-      0,
-    )
-    const heightDiffWithLastDirectChild = descendentsCount - enrichedChildren[node.children.length - 1].descendentsCount
-    return {
-      ...node,
-      children: enrichedChildren,
-      depth: depthOffset,
-      descendentsCount,
-      heightDiffWithLastDirectChild,
-    }
-  }
-
-  // console.log(categories)
-  const handleAddCategory = (parentId: number, categoryText: string) => {
-    // setIsAddCategory(true)
+  const handleAddCategory = (tree: Category = topLevelNode, parentId: number, categoryText: string) => {
     const newCategory: Category = {
-      id: Date.now(), // Генерируем уникальный ID (обычно он должен быть уникальным)
+      id: Date.now(),
       text: categoryText,
       children: [],
-      // level: 0
     };
+    tree.children.push(newCategory);
+    setTopLevelNode({...topLevelNode})
+  }
 
-    if (parentId === 1) {
-      setCategories((prevCategories) => {
-        return [...prevCategories, newCategory]
-      })
-    }
-
-    setCategories((prevCategories) => {
-      if (flatten({
-        id: 1,
-        text: enrichedTopLevelNode.text,
-        children: prevCategories,
-        // level: 0
-      }).find((category) => {
-        if (category.id === newCategory.id) return true
-        else return false
-      })) {
-        return prevCategories
-      }
-      return prevCategories.map((category) => {
-        if (category.id === parentId) {
-          category.children.push(newCategory)
-          return category
-        } else {
-          if (category.children.length > 0) {
-            updateCategory(category.children, parentId, newCategory);
-          }
-        }
-        return category;
-      });
-    });
-  };
-  
   const handleDeleteCategory = (id: number) => {
-    setCategories((prevCategories) => {
-      return prevCategories.filter((category) => {
-        if (category.id === id) {
-          return category.id !== id
-        } else {
-          if (category.children.length > 0) {
-            category.children = deleteCategoryChildren(category.children, id)
-            return category;
-          }
+    const categories = topLevelNode.children.filter((category) => {
+      if (category.id === id) {
+        return category.id !== id
+      } else {
+        if (category.children.length > 0) {
+          const children = deleteCategoryChildren(category.children, id)
+          category.children = [...children]
+          return category
         }
-        return category;
-        // return category.id !== id
-      });
+      }
+      return category;
+    });
+    setTopLevelNode({
+      id: topLevelNode.id,
+      text: topLevelNode.text,
+      children: [...categories]
     })
   }
 
@@ -154,60 +88,11 @@ const App: React.FC = () => {
     })
   }
 
-  const handleChangeCategory = (id: number, categoryText: string) => {
-    if(id === enrichedTopLevelNode.id) {
-      setEnrichedTopLevelNode(enrich({
-        id: 1,
-        text: categoryText,
-        children: categories
-      }))
-      return
-    }
-    setCategories((prevCategories) => {
-      return prevCategories.map((category) => {
-        if (category.id === id) {
-          category.text = categoryText
-          return category
-        } else {
-          if (category.children.length > 0) {
-            updateCategoryChildren(category.children, id, categoryText);
-          }
-        }
-        return category;
-      });
-    })
+  const handleChangeCategory = (node: Category, id: number, categoryText: string) => {
+    node.text = categoryText
+    setTopLevelNode({...topLevelNode})
   }
 
-  const updateCategoryChildren = (categoryList: Category[], id: number, categoryText: string) => {
-    for (let category of categoryList) {
-      if (category.id === id) {
-        category.text = categoryText
-        return category
-      } else if (category.children && category.children.length > 0) {
-        updateCategoryChildren(category.children, id, categoryText);
-      }
-    }
-  }
-
-  const updateCategory = (categoryList: Category[], parentId: number, newCategory: Category) => {
-    for (let category of categoryList) {
-      if (category.id === parentId) {
-        category.children.push(newCategory)
-        return
-      } else if (category.children && category.children.length > 0) {
-        updateCategory(category.children, parentId, newCategory);
-      }
-    }
-  };
-
-  // Flatten nodes with a depth first search
-  function flatten(node: Category | EnrichedCategory): EnrichedCategory[] {
-    const { children = [], ...nodeWithoutChildren } = node
-    return [
-      { ...nodeWithoutChildren },
-      ...children.map((childNode) => flatten(childNode)).flat(),
-    ] as EnrichedCategory[]
-  }
   const options = [0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.25, 1.5];
   const [scale, setScale] = useState(options[5]);
   const handleNext = () => {
@@ -293,11 +178,10 @@ const App: React.FC = () => {
         onMouseDown={handleMouseDown}
       >
         <CategoryList
-        handleDeleteCategory={handleDeleteCategory}
-        handleChangeCategory={handleChangeCategory}
-          topLevelNode={enrichedTopLevelNode}
+          handleDeleteCategory={handleDeleteCategory}
+          handleChangeCategory={handleChangeCategory}
+          topLevelNode={topLevelNode}
           handleAddCategory={handleAddCategory}
-          flatten={flatten}
           scale={scale}
         />
       </div>
